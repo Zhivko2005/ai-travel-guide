@@ -3,75 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Travel Guide</title>
+    <title>AI Travel Guide - Professional</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="container">
         <h1>🌍 AI Travel Guide</h1>
-        <p class="subtitle">Твоят личен асистент за планиране на приключения</p>
+        <p class="subtitle">Планирай своето приключение със силата на ИИ</p>
 
         <div class="input-section">
             <div class="input-group">
-                <div class="field">
-                    <label for="dest">Дестинация</label>
-                    <input type="text" id="dest" placeholder="напр. Париж, Рим...">
+                <div class="field flex-2">
+                    <label for="dest">Къде отиваме?</label>
+                    <input type="text" id="dest" placeholder="Париж, Рим или качи снимка...">
                 </div>
-                <div class="field">
-                    <label for="days">Брой дни</label>
+
+                <div class="field flex-1">
+                    <label for="days">Престой (дни)</label>
                     <input type="number" id="days" value="3" min="1" max="14">
                 </div>
             </div>
 
-            <button onclick="getPlan()" id="submit-btn">Генерирай план</button>
+            <div class="input-group">
+                <div class="field flex-2">
+                    <label for="image">📸 Разпознай от снимка</label>
+                    <input type="file" id="image" accept="image/*" class="file-input">
+                </div>
+
+                <div class="field flex-1">
+                    <label>Категория хотел</label>
+                    <div class="star-rating" id="star-selector">
+                        <span class="star active" data-value="1">★</span>
+                        <span class="star active" data-value="2">★</span>
+                        <span class="star active" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="hotel-rating" value="3">
+                </div>
+            </div>
+
+            <button onclick="getPlan()" id="submit-btn">Генерирай интелигентен план</button>
         </div>
 
         <div id="loading" style="display:none;">
             <div class="spinner"></div>
-            <p>✨ Твоят гид подготвя маршрута...</p>
+            <p>✨ Анализирам дестинацията и търся хотели...</p>
         </div>
 
         <div id="result-container" style="display:none;">
-            <h2>Твоят личен план:</h2>
+            <h2>🗺️ Твоят персонализиран план:</h2>
             <div id="result"></div>
         </div>
     </div>
 
     <script>
+
+        const destInput = document.getElementById('dest');
+        const imageInput = document.getElementById('image');
+
+
+        imageInput.onchange = function() {
+            if (this.files && this.files.length > 0) {
+                destInput.value = ""; // Изчистваме текста, ако има такъв
+                destInput.disabled = true;
+                destInput.placeholder = "Дестинацията ще бъде разпозната от снимката ✨";
+                destInput.style.backgroundColor = "#e2e8f0"; // Визуално сиво
+            }
+            else {
+                destInput.disabled = false;
+                destInput.placeholder = "Париж, Рим или качи снимка...";
+                destInput.style.backgroundColor = "white";
+            }
+        };
+
+        destInput.oninput = function() {
+        if (this.value.length > 0) {
+            imageInput.disabled = true;
+            imageInput.style.opacity = "0.5";
+        }
+        else {
+            imageInput.disabled = false;
+            imageInput.style.opacity = "1";
+        }
+    };
+
+        document.querySelectorAll('.star').forEach(star => {
+            star.onclick = function() {
+                const val = parseInt(this.getAttribute('data-value'));
+                document.getElementById('hotel-rating').value = val;
+
+                document.querySelectorAll('.star').forEach(s => {
+                    const sVal = parseInt(s.getAttribute('data-value'));
+                    if (sVal <= val) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            };
+        });
+
         async function getPlan() {
             const dest = document.getElementById('dest').value;
             const days = document.getElementById('days').value;
+            const rating = document.getElementById('hotel-rating').value;
+            const imageFile = document.getElementById('image').files[0];
+
             const resDiv = document.getElementById('result');
             const resContainer = document.getElementById('result-container');
             const loadDiv = document.getElementById('loading');
             const btn = document.getElementById('submit-btn');
 
-            if (!dest) {
-                alert("Моля, въведете дестинация!");
+            if (!dest && !imageFile) {
+                alert("Моля, въведете дестинация или качете снимка на забележителност!");
                 return;
             }
 
-            // Визуални промени при зареждане
             loadDiv.style.display = 'block';
             resContainer.style.display = 'none';
             btn.disabled = true;
-            btn.innerText = "Планиране...";
+
+            const formData = new FormData();
+            formData.append('dest', dest);
+            formData.append('days', days);
+            formData.append('rating', rating);
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
 
             try {
-                const response = await fetch(`/generate?dest=${encodeURIComponent(dest)}&days=${days}`);
-                const data = await response.json();
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
 
+                const data = await response.json();
                 loadDiv.style.display = 'none';
                 resContainer.style.display = 'block';
-
-                // Използваме innerText, за да запазим новите редове от ИИ
                 resDiv.innerText = data.plan || data.message;
             } catch (error) {
                 loadDiv.style.display = 'none';
-                alert("Възникна грешка при връзката със сървъра.");
+                alert("Грешка при връзка със сървъра.");
             } finally {
                 btn.disabled = false;
-                btn.innerText = "Генерирай план";
             }
         }
     </script>

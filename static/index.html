@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Travel Guide</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 AI Travel Guide</h1>
+        <p class="subtitle">Твоят личен асистент за планиране на приключения</p>
+
+        <div class="input-section">
+            <div class="input-group">
+                <div class="field">
+                    <label for="dest">Дестинация</label>
+                    <input type="text" id="dest" placeholder="напр. Париж, Рим...">
+                </div>
+                <div class="field">
+                    <label for="days">Брой дни</label>
+                    <input type="number" id="days" value="3" min="1" max="14">
+                </div>
+            </div>
+
+            <button onclick="getPlan()" id="submit-btn">Генерирай план</button>
+        </div>
+
+        <div id="loading" style="display:none;">
+            <div class="spinner"></div>
+            <p>✨ Твоят гид подготвя маршрута...</p>
+        </div>
+
+        <div id="result-container" style="display:none;">
+            <h2>Твоят личен план:</h2>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        async function getPlan() {
+            const dest = document.getElementById('dest').value;
+            const days = document.getElementById('days').value;
+            const resDiv = document.getElementById('result');
+            const resContainer = document.getElementById('result-container');
+            const loadDiv = document.getElementById('loading');
+            const btn = document.getElementById('submit-btn');
+
+            if (!dest) {
+                alert("Моля, въведете дестинация!");
+                return;
+            }
+
+            // Визуални промени при зареждане
+            loadDiv.style.display = 'block';
+            resContainer.style.display = 'none';
+            btn.disabled = true;
+            btn.innerText = "Планиране...";
+
+            try {
+                const response = await fetch(`/generate?dest=${encodeURIComponent(dest)}&days=${days}`);
+                const data = await response.json();
+
+                loadDiv.style.display = 'none';
+                resContainer.style.display = 'block';
+
+                // Използваме innerText, за да запазим новите редове от ИИ
+                resDiv.innerText = data.plan || data.message;
+            } catch (error) {
+                loadDiv.style.display = 'none';
+                alert("Възникна грешка при връзката със сървъра.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Генерирай план";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -63,7 +63,6 @@ input[type="text"], input[type="number"], .file-input {
 
 input:focus { border-color: var(--primary); }
 
-/* Звездна система */
 .star-rating {
     display: flex;
     gap: 4px;
@@ -129,20 +128,20 @@ input:disabled {
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* --- РЕЙСПОНСИВ ДИЗАЙН (Media Queries) --- */
+
 
 @media (max-width: 600px) {
     body {
-        padding: 10px; /* По-малко разстояние от краищата на екрана */
+        padding: 10px;
     }
 
     .container {
-        padding: 20px; /* Намаляваме вътрешното пространство на картата */
+        padding: 20px;
         border-radius: 15px;
     }
 
     h1 {
-        font-size: 1.8rem; /* По-малък заглавен текст */
+        font-size: 1.8rem;
     }
 
     .input-section {
@@ -150,34 +149,33 @@ input:disabled {
     }
 
     .input-group {
-        flex-direction: column; /* Правим полетата едно под друго */
+        flex-direction: column;
         gap: 15px;
         margin-bottom: 15px;
     }
 
-    /* На телефон всички полета заемат 100% широчина */
+
     .flex-1, .flex-2 {
         flex: none;
         width: 100%;
     }
 
     .star-rating {
-        font-size: 2rem; /* Увеличаваме звездите, за да са по-лесни за натискане с пръст */
+        font-size: 2rem;
         padding: 10px;
     }
 
     button {
-        padding: 18px; /* По-голям бутон за по-лесно докосване */
+        padding: 18px;
         font-size: 1rem;
     }
 
     #result {
         padding: 15px;
-        font-size: 0.95rem; /* Малко по-дребен текст за плана */
+        font-size: 0.95rem;
     }
 }
 
-/* Специална корекция за много малки екрани (iPhone SE и подобни) */
 @media (max-width: 380px) {
     h1 { font-size: 1.5rem; }
     .star-rating { font-size: 1.6rem; }

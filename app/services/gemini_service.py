@@ -50,7 +50,6 @@ class TravelService:
                 config=types.GenerateContentConfig(
                     temperature=0.3, #По-ниска температура - баланс между логично мислене и креативност
                     top_p=0.95, #Контрол на разнообразието на думите
-                    max_output_tokens=5000 #Лимит на дължината на отговора
                 )
             )
             return response.text
